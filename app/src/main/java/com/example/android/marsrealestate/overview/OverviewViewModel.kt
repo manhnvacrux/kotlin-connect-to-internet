@@ -36,6 +36,20 @@ enum class MarsApiStatus { LOADING, ERROR, DONE }
  */
 class OverviewViewModel : ViewModel() {
 
+    private val _navigateToSelectedProperty = MutableLiveData<MarsProperty>()
+
+    val navigateToSelectedProperty: LiveData<MarsProperty>
+        get() = _navigateToSelectedProperty
+
+    fun displayPropertyDetails(marsProperty: MarsProperty) {
+        _navigateToSelectedProperty.value = marsProperty
+    }
+
+    fun displayPropertyDetailsComplete() {
+        _navigateToSelectedProperty.value = null
+    }
+
+
     // The internal MutableLiveData String that stores the most recent response status
     private val _status = MutableLiveData<MarsApiStatus>()
     val status: LiveData<MarsApiStatus>
@@ -53,7 +67,7 @@ class OverviewViewModel : ViewModel() {
     private var viewModelJob = Job()
 
     // the Coroutine runs using the Main (UI) dispatcher
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main )
+    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     /**
      * Call getMarsRealEstateProperties() on init so we can display status immediately.
@@ -74,7 +88,7 @@ class OverviewViewModel : ViewModel() {
             try {
                 _status.value = MarsApiStatus.LOADING
 
-                val listResult =  getPropertiesDeferred.await()
+                val listResult = getPropertiesDeferred.await()
                 _status.value = MarsApiStatus.DONE
                 _properties.value = listResult
             } catch (e: Exception) {
